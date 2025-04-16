@@ -1,6 +1,6 @@
-package com.rrtyui.filestorage.entity;
+package com.rrtyui.filestorage.dto;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -12,14 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Entity
-@Table(name = "users")
-public class MyUser {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
+public class MyUserRequestDto {
     @NotEmpty(message = "НЕ пусто")
     @Size(min = 2, max = 100, message = "от 2 до 100")
     @Column(name = "username", unique = true, nullable = false)
