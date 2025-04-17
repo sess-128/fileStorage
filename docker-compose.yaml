@@ -10,6 +10,20 @@ services:
   #      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${DB_NAME}
   #      SPRING_DATASOURCE_USERNAME: ${DB_USER}
   #      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+  redis:
+    image: redis
+    restart: always
+  minioS3:
+    image: quay.io/minio/minio:RELEASE.2025-04-08T15-41-24Z
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - ./minio_storage:/data
+    command: server --console-address ":9001" /data
+    env_file:
+      - .env
+    restart: always
   db:
     image: postgres
     environment:
