@@ -13,9 +13,7 @@ public class GlobalAdvice {
 
     @ExceptionHandler
     private ResponseEntity<ErrorResponse> handleException(UserNotFoundException e) {
-        ErrorResponse response = new ErrorResponse(
-                "User with this id not found"
-        );
+        ErrorResponse response = ResponseMapper.toErrorResponse(e);
 
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND); // 404
     }
