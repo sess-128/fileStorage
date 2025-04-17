@@ -13,7 +13,6 @@ import java.util.Collections;
 @Service
 public class MyUserDetailsService implements UserDetailsService {
 
-
     private final UserRepository userRepository;
 
     @Autowired
@@ -22,7 +21,7 @@ public class MyUserDetailsService implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String username) {
        return userRepository.findByName(username)
                .map(user -> new User(
                        user.getName(),

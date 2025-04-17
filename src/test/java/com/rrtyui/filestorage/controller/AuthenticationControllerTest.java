@@ -5,9 +5,9 @@ import com.rrtyui.filestorage.entity.MyUser;
 import com.rrtyui.filestorage.mapper.MyUserMapper;
 import com.rrtyui.filestorage.repository.UserRepository;
 import com.rrtyui.filestorage.service.AuthService;
+import com.rrtyui.filestorage.service.RegisterService;
 import com.rrtyui.filestorage.util.Mapper;
 import com.rrtyui.filestorage.util.UserResponse;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -44,7 +44,10 @@ class AuthenticationControllerTest {
     private UserRepository userRepository;
 
     @Autowired
-    private AuthService authService;
+    private MyUserMapper userMapper;
+
+    @Autowired
+    private RegisterService registerService;
 
     @Container
     private static final PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:latest");
@@ -91,7 +94,7 @@ class AuthenticationControllerTest {
     void registration_ShouldReturnIs4xxConflict_WhenUsernameAlreadyTaken() throws Exception {
         MyUserRequestDto dto = new MyUserRequestDto("test", "test");
         String userJson = Mapper.toJson(dto);
-        userRepository.saveAndFlush(MyUserMapper.toMyUser(dto));
+        userRepository.saveAndFlush(userMapper.toMyUser(dto));
 
         mvc.perform(post("/api/auth/sign-up")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -104,7 +107,7 @@ class AuthenticationControllerTest {
     void auth_ShouldReturnIs2xxOk_WhenCredentialsGood() throws Exception {
         MyUserRequestDto dto = new MyUserRequestDto("test", "test");
         String userJson = Mapper.toJson(dto);
-        authService.register(dto);
+        registerService.register(dto);
 
         mvc.perform(post("/api/auth/sign-in")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -121,7 +124,7 @@ class AuthenticationControllerTest {
         MyUserRequestDto savedUser = new MyUserRequestDto("test", "test");
         MyUserRequestDto notExistedUser = new MyUserRequestDto("notexist", "notexist");
         String wrongUser = Mapper.toJson(notExistedUser);
-        authService.register(savedUser);
+        registerService.register(savedUser);
 
         mvc.perform(post("/api/auth/sign-in")
                         .contentType(MediaType.APPLICATION_JSON)
