@@ -3,7 +3,7 @@ package com.rrtyui.filestorage.controller;
 import com.rrtyui.filestorage.entity.MyUser;
 import com.rrtyui.filestorage.mapper.ResponseMapper;
 import com.rrtyui.filestorage.service.MyUserService;
-import com.rrtyui.filestorage.util.UserResponse;
+import com.rrtyui.filestorage.util.response.UserResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -1,6 +1,8 @@
 package com.rrtyui.filestorage.service;
 
+import com.rrtyui.filestorage.entity.MyUser;
 import com.rrtyui.filestorage.repository.UserRepository;
+import com.rrtyui.filestorage.security.MyUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -9,6 +11,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
+import java.util.Optional;
 
 @Service
 public class MyUserDetailsService implements UserDetailsService {
@@ -22,13 +25,13 @@ public class MyUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) {
-       return userRepository.findByName(username)
-               .map(user -> new User(
-                       user.getName(),
-                       user.getPassword(),
-                       Collections.emptyList()
-               ))
-               .orElseThrow(() -> new UsernameNotFoundException("NET takogo"));
+        Optional<MyUser> user = userRepository.findByName(username);
+
+        if (user.isEmpty()) {
+            throw new UsernameNotFoundException("adklamnsldkasd");
+        }
+
+        return new MyUserDetails(user.get());
     }
 
 }

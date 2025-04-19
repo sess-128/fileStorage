@@ -1,20 +1,23 @@
 package com.rrtyui.filestorage.security;
 
 import com.rrtyui.filestorage.entity.MyUser;
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 
-public class MyUserDetails implements UserDetails {
+@Getter
+public class MyUserDetails implements UserDetails, Serializable {
+    private static final long serialVersionUID = 1L;
 
     private final MyUser myUser;
 
     public MyUserDetails(MyUser myUser) {
         this.myUser = myUser;
     }
-
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

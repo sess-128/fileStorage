@@ -2,8 +2,8 @@ package com.rrtyui.filestorage.mapper;
 
 import com.rrtyui.filestorage.dto.MyUserRequestDto;
 import com.rrtyui.filestorage.entity.MyUser;
-import com.rrtyui.filestorage.util.ErrorResponse;
-import com.rrtyui.filestorage.util.UserResponse;
+import com.rrtyui.filestorage.util.response.ErrorResponse;
+import com.rrtyui.filestorage.util.response.UserResponse;
 
 public class ResponseMapper {
 
