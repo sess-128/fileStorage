@@ -5,7 +5,6 @@ import com.rrtyui.filestorage.util.response.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -36,5 +35,17 @@ public class GlobalAdvice {
     private ResponseEntity<ErrorResponse> handleException(BadCredentialsException e) {
         ErrorResponse response = ResponseMapper.toErrorResponse(e);
         return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED); // 401
+    }
+
+    @ExceptionHandler
+    private ResponseEntity<ErrorResponse> handleException(PathNotFoundException e) {
+        ErrorResponse response = ResponseMapper.toErrorResponse(e);
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND); // 404
+    }
+
+    @ExceptionHandler
+    private ResponseEntity<ErrorResponse> handleException(UnsupportedOperationException e) {
+        ErrorResponse response = ResponseMapper.toErrorResponse(e);
+        return new ResponseEntity<>(response, HttpStatus.CONFLICT); // 409
     }
 }

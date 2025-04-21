@@ -1,6 +1,6 @@
 package com.rrtyui.filestorage.eventandlistener;
 
-import com.rrtyui.filestorage.service.s3minio.S3Service;
+import com.rrtyui.filestorage.minio.service.MinioService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
@@ -8,12 +8,12 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class UserRegisteredListener {
-    private final S3Service s3Service;
+    private final MinioService minioService;
 
     @EventListener
     public void handleUserRegisteredEvent(UserRegisteredEvent event) {
         Long id = event.getId();
-        s3Service.createRootFolderForUser(id);
+        minioService.createRootFolderForUser(id);
         System.out.println("Сделал папку для юзера с айди " + id);
     }
 }

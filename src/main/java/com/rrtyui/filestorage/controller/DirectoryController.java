@@ -1,58 +1,36 @@
 package com.rrtyui.filestorage.controller;
 
+import com.rrtyui.filestorage.minio.service.MinioService;
 import com.rrtyui.filestorage.security.MyUserDetails;
-import com.rrtyui.filestorage.service.s3minio.S3Service;
-import com.rrtyui.filestorage.util.response.MinioFileResponse;
-import io.minio.StatObjectResponse;
+import com.rrtyui.filestorage.util.response.MinioResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/resource")
+@RequestMapping("/api/directory")
 public class DirectoryController {
 
-    private final S3Service s3Service;
+    private final MinioService minioService;
 
-    @GetMapping()
-    public ResponseEntity<?> infoAboutResource(@RequestParam("path") String path,
+    @PostMapping
+    public ResponseEntity<?> createEmptyFolder(@RequestParam("path") String path,
                                                @AuthenticationPrincipal MyUserDetails myUserDetails) {
-        StatObjectResponse resourceInfo = s3Service.getResourceInfo(path, myUserDetails);
+        MinioResponse minioResponse = minioService.createEmptyFolder(path, myUserDetails);
 
-        MinioFileResponse minioFileResponse = MinioFileResponse.builder()
-                .path(path)
-                .name("Будущее имя")
-                .size(resourceInfo.size())
-                .type("Файл")
-                .build();
-        return new ResponseEntity<>(minioFileResponse, HttpStatus.OK);
+        return new ResponseEntity<>(minioResponse, HttpStatus.CREATED);
     }
 
-    @DeleteMapping()
-    public ResponseEntity<?> deleteResource(@RequestParam("path") String path,
-                                            @AuthenticationPrincipal MyUserDetails myUserDetails) {
-        s3Service.deleteResource(path, myUserDetails);
+    @GetMapping
+    public ResponseEntity<?> getDirectoryInfo(@RequestParam("path") String path,
+                                               @AuthenticationPrincipal MyUserDetails myUserDetails) {
+        List<MinioResponse> minioResponses = minioService.directoryInfo(path, myUserDetails);
 
-        MinioFileResponse minioFileResponse = MinioFileResponse.builder()
-                .path(path)
-                .name("Удалили файл")
-                .build();
-        return new ResponseEntity<>(minioFileResponse, HttpStatus.OK);
+        return new ResponseEntity<>(minioResponses, HttpStatus.OK);
     }
-
-    @GetMapping("/download")
-    public void download(@RequestParam("path") String path,
-                         @AuthenticationPrincipal MyUserDetails myUserDetails) {
-        s3Service.downloadResource(path, myUserDetails);
-        MinioFileResponse minioFileResponse = MinioFileResponse.builder()
-                .path(path)
-                .name("Скачали файл")
-                .build();
-//        return new ResponseEntity<>(minioFileResponse, HttpStatus.OK);
-    }
-
-
 }

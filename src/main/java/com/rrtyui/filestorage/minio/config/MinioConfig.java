@@ -1,11 +1,12 @@
-package com.rrtyui.filestorage.service.s3minio;
+package com.rrtyui.filestorage.minio.config;
 
+import com.rrtyui.filestorage.minio.util.MinioUtils;
 import io.minio.MinioClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class s3Client {
+public class MinioConfig {
 
     @Bean
     public MinioClient minioClient() {
@@ -13,5 +14,10 @@ public class s3Client {
                 .endpoint("http://localhost:9000")
                 .credentials("local_user", "y768ayxxxL!")
                 .build();
+    }
+
+    @Bean
+    public MinioUtils minioUtils() {
+        return new MinioUtils();
     }
 }
