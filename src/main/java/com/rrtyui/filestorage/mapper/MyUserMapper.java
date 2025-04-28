@@ -14,7 +14,7 @@ public class MyUserMapper {
 
     public MyUser toMyUser (MyUserRequestDto dto) {
         return MyUser.builder()
-                .name(dto.getName())
+                .username(dto.getUsername())
                 .password(passwordEncoder.encode(dto.getPassword()))
                 .build();
     }

@@ -35,7 +35,7 @@ public class AuthService {
 
     private UsernamePasswordAuthenticationToken createToken(MyUserRequestDto dto) {
         return new UsernamePasswordAuthenticationToken(
-                dto.getName(), dto.getPassword()
+                dto.getUsername(), dto.getPassword()
         );
     }
 }

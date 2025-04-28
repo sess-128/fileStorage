@@ -1,10 +1,11 @@
 package com.rrtyui.filestorage.controller;
 
-import com.rrtyui.filestorage.minio.service.MinioService;
+import com.rrtyui.filestorage.minio.service.MinioMainService;
 import com.rrtyui.filestorage.security.MyUserDetails;
 import com.rrtyui.filestorage.util.response.MinioResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -17,12 +18,12 @@ import java.util.List;
 @RequestMapping("/api/resource")
 public class ResourceController {
 
-    private final MinioService minioService;
+    private final MinioMainService minioMainService;
 
     @GetMapping()
     public ResponseEntity<?> infoAboutResource(@RequestParam("path") String path,
                                                @AuthenticationPrincipal MyUserDetails myUserDetails) {
-        MinioResponse minioResponse = minioService.getResourceInfo(path, myUserDetails);
+        MinioResponse minioResponse = minioMainService.getResourceInfo(path, myUserDetails);
 
         return new ResponseEntity<>(minioResponse, HttpStatus.OK);
     }
@@ -30,7 +31,7 @@ public class ResourceController {
     @DeleteMapping()
     public ResponseEntity<?> deleteResource(@RequestParam("path") String path,
                                             @AuthenticationPrincipal MyUserDetails myUserDetails) {
-        minioService.deleteResource(path, myUserDetails);
+        minioMainService.deleteResource(path, myUserDetails);
 
         MinioResponse minioResponse = MinioResponse.builder()
                 .path(path)
@@ -42,7 +43,7 @@ public class ResourceController {
     @GetMapping("/download")
     public void download(@RequestParam("path") String path,
                          @AuthenticationPrincipal MyUserDetails myUserDetails) {
-        minioService.downloadResource(path, myUserDetails);
+        minioMainService.downloadResource(path, myUserDetails);
         MinioResponse minioResponse = MinioResponse.builder()
                 .path(path)
                 .name("Скачали файл")
@@ -51,25 +52,25 @@ public class ResourceController {
     }
 
     @GetMapping("/move")
-    public void move(@RequestParam("from") String from,
-                     @RequestParam("to") String to,
+    public void move(@RequestParam("source") String from,
+                     @RequestParam("target") String to,
                      @AuthenticationPrincipal MyUserDetails myUserDetails) {
-        minioService.renameOrMoveFile(from, to, myUserDetails);
+        minioMainService.renameOrMoveFile(from, to, myUserDetails);
     }
 
     @GetMapping("/search")
     public ResponseEntity<?> search(@RequestParam("query") String query,
-                     @AuthenticationPrincipal MyUserDetails myUserDetails) {
-        List<MinioResponse> searched = minioService.search(query, myUserDetails);
+                                    @AuthenticationPrincipal MyUserDetails myUserDetails) {
+        List<MinioResponse> searched = minioMainService.search(query, myUserDetails);
 
         return new ResponseEntity<>(searched, HttpStatus.OK);
     }
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> upload(@RequestParam("path") String path,
                                     @RequestParam("file") MultipartFile file,
                                     @AuthenticationPrincipal MyUserDetails myUserDetails) {
-        minioService.uploadFileOrFolder(file, path, myUserDetails);
+        minioMainService.uploadFileOrFolder(file, path, myUserDetails);
         MinioResponse minioResponse = MinioResponse.builder()
                 .name("Загружено что-то")
                 .build();

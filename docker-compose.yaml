@@ -1,37 +1,58 @@
 services:
-  #  backend:
-  #    image: file_storage_rrtyui
-  #    build:
-  #      context: ./file_storage
-  #    depends_on:
-  #      db:
-  #        condition: service_healthy
-  #    environment:
-  #      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${DB_NAME}
-  #      SPRING_DATASOURCE_USERNAME: ${DB_USER}
-  #      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+  backend:
+    build:
+      context: .
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: ${DB_URL}
+      SPRING_DATASOURCE_USERNAME: ${DB_USER}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+#      MINIO_ENDPOINT: http://minioS3:9000
+#      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER}
+#      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD}
+    depends_on:
+      redis:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+      minioS3:
+        condition: service_started
+
   redis:
-    image: redis
-    restart: always
+    image: redis:alpine
+    container_name: redis
+    hostname: redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+  frontend:
+    build:
+      context: ./cloud-storage-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
   minioS3:
     image: quay.io/minio/minio:RELEASE.2025-04-08T15-41-24Z
     ports:
       - "9000:9000"
       - "9001:9001"
     volumes:
-      - ./minio_storage:/data
+      - minio_data:/data
     command: server --console-address ":9001" /data
-    env_file:
-      - .env
-    restart: always
+#    environment:
+#      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+#      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+
   db:
     image: postgres
-    environment:
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_DB: ${DB_NAME}
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB: ${DB_NAME}}"]
+      test: [ "CMD-SHELL", "pg_isready -U $DB_USER -d $DB_NAME" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -41,4 +62,5 @@ services:
       - db-data:/var/lib/postgresql/data
 
 volumes:
+  minio_data:
   db-data:

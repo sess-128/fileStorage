@@ -11,11 +11,11 @@ import io.minio.StatObjectResponse;
 public class ResponseMapper {
 
     public static UserResponse toUserResponse(MyUserRequestDto dto) {
-        return new UserResponse(dto.getName());
+        return new UserResponse(dto.getUsername());
     }
 
     public static UserResponse toUserResponse(MyUser user) {
-        return new UserResponse(user.getName());
+        return new UserResponse(user.getUsername());
     }
 
     public static ErrorResponse toErrorResponse(Exception e){

@@ -1,9 +1,12 @@
 package com.rrtyui.filestorage.minio.service;
 
+import com.rrtyui.filestorage.exception.UserAlreadyExistException;
+import com.rrtyui.filestorage.exception.UserNotFoundException;
 import com.rrtyui.filestorage.minio.repository.MinioRepository;
 import com.rrtyui.filestorage.minio.util.MinioUtils;
 import com.rrtyui.filestorage.security.MyUserDetails;
 import io.minio.Result;
+import io.minio.StatObjectResponse;
 import io.minio.messages.Item;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
@@ -22,6 +25,11 @@ public class RenameAndMoveService extends BaseService{
     public void renameOrMoveFile(String from, String to, MyUserDetails myUserDetails) {
         String fullFromPath = minioUtils.getCurrentUserPath(myUserDetails) + from;
         String fullToPath = minioUtils.getCurrentUserPath(myUserDetails) + to;
+
+
+        if (minioRepository.isResourceExist(fullToPath)) {
+            throw new UserAlreadyExistException("Файл или папка уже существует");
+        }
 
         if (fullFromPath.equals(fullToPath)) {
             throw new IllegalArgumentException("Source and destination paths are identical");

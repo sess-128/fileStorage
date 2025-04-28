@@ -31,7 +31,7 @@ public class MyUserDetails implements UserDetails, Serializable {
 
     @Override
     public String getUsername() {
-        return this.myUser.getName();
+        return this.myUser.getUsername();
     }
 
     @Override

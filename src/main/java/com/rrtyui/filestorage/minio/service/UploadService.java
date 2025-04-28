@@ -1,9 +1,11 @@
 package com.rrtyui.filestorage.minio.service;
 
+import com.rrtyui.filestorage.exception.UserAlreadyExistException;
 import com.rrtyui.filestorage.minio.repository.MinioRepository;
 import com.rrtyui.filestorage.minio.util.MinioUtils;
 import com.rrtyui.filestorage.security.MyUserDetails;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -13,6 +15,7 @@ import java.io.InputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+@Slf4j
 @Service
 public class UploadService extends BaseService{
 
@@ -23,7 +26,11 @@ public class UploadService extends BaseService{
     public void uploadFileOrFolder(MultipartFile file, String targetPath, MyUserDetails userDetails) {
         String userPrefix = minioUtils.getCurrentUserPath(userDetails);
         String fullPath = userPrefix + targetPath;
+        log.info("Checking path: {}", fullPath);
 
+//        if (minioRepository.isResourceExist(fullPath)) {
+//            throw new UserAlreadyExistException("Файл или папка уже существует");
+//        }
         if (file.getOriginalFilename() != null && file.getOriginalFilename().endsWith(".zip")) {
             uploadZipArchive(file, fullPath);
         } else {

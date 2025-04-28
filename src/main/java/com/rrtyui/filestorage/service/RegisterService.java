@@ -20,7 +20,7 @@ public class RegisterService {
 
     @Transactional
     public void register(MyUserRequestDto myUserRequestDto) {
-        if (userRepository.existsByName(myUserRequestDto.getName())) {
+        if (userRepository.existsByUsername(myUserRequestDto.getUsername())) {
             throw new UserAlreadyExistException("User with this name is exist, please select another one");
         }
 

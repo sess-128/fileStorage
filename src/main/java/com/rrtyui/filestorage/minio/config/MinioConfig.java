@@ -11,7 +11,7 @@ public class MinioConfig {
     @Bean
     public MinioClient minioClient() {
         return MinioClient.builder()
-                .endpoint("http://localhost:9000")
+                .endpoint("http://minioS3:9000")
                 .credentials("local_user", "y768ayxxxL!")
                 .build();
     }

@@ -113,7 +113,7 @@ class AuthenticationControllerTest {
                         .content(userJson))
                 .andExpect(status().isOk());
 
-        Optional<MyUser> shouldBeAdded = userRepository.findByName("test");
+        Optional<MyUser> shouldBeAdded = userRepository.findByUsername("test");
         assertTrue(shouldBeAdded.isPresent());
     }
 

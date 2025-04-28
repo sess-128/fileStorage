@@ -1,5 +1,6 @@
 package com.rrtyui.filestorage.minio.service;
 
+import com.rrtyui.filestorage.minio.util.MinioUtils;
 import com.rrtyui.filestorage.security.MyUserDetails;
 import com.rrtyui.filestorage.util.response.MinioResponse;
 import lombok.RequiredArgsConstructor;
@@ -11,8 +12,9 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class MinioService {
+public class MinioMainService {
 
+    private final MinioUtils minioUtils;
     private final DownloadService downloadService;
     private final RenameAndMoveService renameAndMoveService;
     private final DeleteService deleteService;
@@ -22,15 +24,18 @@ public class MinioService {
     private final CreateService createService;
 
     public MinioResponse getResourceInfo(String path, MyUserDetails userDetails) {
+        minioUtils.validatePath(path);
         return infoService.getResourceInfo(path, userDetails);
     }
 
     @SneakyThrows
     public List<MinioResponse> directoryInfo(String path, MyUserDetails myUserDetails) {
+        minioUtils.validatePath(path);
         return infoService.directoryInfo(path, myUserDetails);
     }
 
     public void deleteResource(String path, MyUserDetails userDetails) {
+        minioUtils.validatePath(path);
         deleteService.deleteResource(path, userDetails);
     }
 
@@ -41,16 +46,19 @@ public class MinioService {
 
     @SneakyThrows
     public MinioResponse createEmptyFolder(String path, MyUserDetails userDetails) {
+        minioUtils.validatePath(path);
         return createService.createEmptyFolder(path, userDetails);
     }
 
     @SneakyThrows
     public void downloadResource(String path, MyUserDetails userDetails) {
+        minioUtils.validatePath(path);
         downloadService.downloadResource(path, userDetails);
     }
 
     @SneakyThrows
     public void renameOrMoveFile(String from, String to, MyUserDetails myUserDetails) {
+
         renameAndMoveService.renameOrMoveFile(from, to, myUserDetails);
     }
 
@@ -61,6 +69,7 @@ public class MinioService {
 
     @SneakyThrows
     public void uploadFileOrFolder(MultipartFile file, String targetPath, MyUserDetails userDetails) {
+        minioUtils.validatePath(targetPath);
         uploadService.uploadFileOrFolder(file, targetPath, userDetails);
     }
 }

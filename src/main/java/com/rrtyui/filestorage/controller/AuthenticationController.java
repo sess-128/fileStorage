@@ -28,6 +28,8 @@ public class AuthenticationController {
     @PostMapping("/sign-up")
     public ResponseEntity<UserResponse> registration(@RequestBody @Valid MyUserRequestDto myUserRequestDto,
                                                      BindingResult bindingResult) {
+        System.out.println("Received sign-up request: " + myUserRequestDto);
+
         CollectorBindingResultError.throwIfHasErrors(bindingResult);
 
         registerService.register(myUserRequestDto);

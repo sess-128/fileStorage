@@ -72,14 +72,13 @@ public class MinioRepository {
     }
 
     public Iterable<Result<Item>> getContentsDirectory(String sourcePrefix) {
-        Iterable<Result<Item>> objects = minio.listObjects(
+        return minio.listObjects(
                 ListObjectsArgs.builder()
                         .bucket(ROOT_BUCKET)
                         .prefix(sourcePrefix)
                         .delimiter("/")
                         .recursive(false)
                         .build());
-        return objects;
     }
 
     @SneakyThrows
@@ -142,4 +141,19 @@ public class MinioRepository {
                         .build()
         );
     }
+
+    public boolean isResourceExist(String path) {
+        try {
+            StatObjectResponse resourceInfo = minio.statObject(
+                    StatObjectArgs.builder()
+                            .bucket(ROOT_BUCKET)
+                            .object(path)
+                            .build()
+            );
+            return !resourceInfo.object().isEmpty();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
 }

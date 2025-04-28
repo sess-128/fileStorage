@@ -28,7 +28,7 @@ public class MyUserValidator implements Validator {
         MyUser myUser = (MyUser) target;
 
         try {
-            myUserDetailsService.loadUserByUsername(myUser.getName());
+            myUserDetailsService.loadUserByUsername(myUser.getUsername());
         } catch (UsernameNotFoundException ignored) {
             return;
         }

@@ -42,6 +42,11 @@ public class GlobalAdvice {
         ErrorResponse response = ResponseMapper.toErrorResponse(e);
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND); // 404
     }
+    @ExceptionHandler
+    private ResponseEntity<ErrorResponse> handleException(InvalidPathException e) {
+        ErrorResponse response = ResponseMapper.toErrorResponse(e);
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND); // 404
+    }
 
     @ExceptionHandler
     private ResponseEntity<ErrorResponse> handleException(UnsupportedOperationException e) {

@@ -1,14 +1,19 @@
 package com.rrtyui.filestorage.minio.util;
 
+import com.rrtyui.filestorage.exception.InvalidPathException;
 import com.rrtyui.filestorage.security.MyUserDetails;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Component
 public class MinioUtils {
+    private static final String REG_EXP = "(//|\\.\\.|--|-$|\\.$)";
+
     public String normalizePath(String path) {
         if (path == null || path.isEmpty() || path.equals("/")) {
             return "";
@@ -80,6 +85,14 @@ public class MinioUtils {
             return type != null ? type : "application/octet-stream";
         } catch (IOException e) {
             return "application/octet-stream";
+        }
+    }
+
+    public void validatePath(String path) {
+        Pattern pattern = Pattern.compile(REG_EXP);
+        Matcher matcher = pattern.matcher(path);
+        if (matcher.find()) {
+            throw new InvalidPathException("Invalid path");
         }
     }
 }

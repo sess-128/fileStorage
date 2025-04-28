@@ -1,5 +1,7 @@
 package com.rrtyui.filestorage.minio.service;
 
+import com.rrtyui.filestorage.exception.UserAlreadyExistException;
+import com.rrtyui.filestorage.exception.UserNotFoundException;
 import com.rrtyui.filestorage.mapper.ResponseMapper;
 import com.rrtyui.filestorage.minio.repository.MinioRepository;
 import com.rrtyui.filestorage.minio.util.MinioUtils;
@@ -24,7 +26,20 @@ public class CreateService extends BaseService{
     @SneakyThrows
     public MinioResponse createEmptyFolder(String path, MyUserDetails userDetails) {
         String finalFolderPath = minioUtils.getCurrentUserPath(userDetails) + path;
+        String parentPrefix = minioUtils.getParentPrefix(finalFolderPath);
+        String userPrefix = minioUtils.getCurrentUserPath(userDetails);
+
+        if (!parentPrefix.isEmpty() && !parentPrefix.equals(userPrefix)) {
+            if (!minioRepository.isResourceExist(parentPrefix)) {
+                throw new UserNotFoundException("Родительской папки нет");
+            }
+        }
+
+        if (minioRepository.isResourceExist(finalFolderPath)) {
+            throw new UserAlreadyExistException("Файл или папка уже существует");
+        }
         minioRepository.createEmptyDirectory(finalFolderPath);
         return ResponseMapper.toMinioResponse(path);
+
     }
 }

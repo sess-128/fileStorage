@@ -1,5 +1,6 @@
 package com.rrtyui.filestorage.minio.service;
 
+import com.rrtyui.filestorage.exception.InvalidPathException;
 import com.rrtyui.filestorage.mapper.ResponseMapper;
 import com.rrtyui.filestorage.minio.repository.MinioRepository;
 import com.rrtyui.filestorage.minio.util.MinioUtils;
@@ -35,6 +36,10 @@ public class InfoService extends BaseService{
         String sourcePrefix = minioUtils.getCurrentUserPath(myUserDetails) + normalizedPath;
 
         Iterable<Result<Item>> items = minioRepository.getContentsDirectory(sourcePrefix);
+
+        if (!items.iterator().hasNext()) {
+            throw new InvalidPathException("Такой директории нет");
+        }
 
         for (Result<Item> itemResult : items) {
             Item item = itemResult.get();

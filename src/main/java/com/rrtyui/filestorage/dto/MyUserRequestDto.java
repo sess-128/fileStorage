@@ -16,7 +16,7 @@ public class MyUserRequestDto {
     @NotEmpty(message = "НЕ пусто")
     @Size(min = 2, max = 100, message = "от 2 до 100")
     @Column(name = "username", unique = true, nullable = false)
-    private String name;
+    private String username;
 
     @Column(name = "password")
     private String password;
