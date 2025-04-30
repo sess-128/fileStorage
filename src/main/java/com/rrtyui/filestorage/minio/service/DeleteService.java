@@ -23,12 +23,15 @@ public class DeleteService extends BaseService{
 
         for (Result<Item> result : objects) {
             String toRemove = result.get().objectName();
+            System.out.println("Удаляю объект: " + toRemove);
             minioRepository.deleteFile(toRemove);
         }
 
+        System.out.println("Удаляю папку-объект: " + prefix);
         try {
             minioRepository.deleteFile(prefix);
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            System.out.println("Ошибка при удалении папки-объекта: " + e.getMessage());
         }
     }
 

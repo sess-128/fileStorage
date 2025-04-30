@@ -53,4 +53,14 @@ public class GlobalAdvice {
         ErrorResponse response = ResponseMapper.toErrorResponse(e);
         return new ResponseEntity<>(response, HttpStatus.CONFLICT); // 409
     }
+
+
+
+
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<String> handleAll(Exception ex) {
+        ex.printStackTrace(); // чтобы точно увидеть в консоли
+        return ResponseEntity.badRequest().body("Error: " + ex.getMessage());
+    }
 }

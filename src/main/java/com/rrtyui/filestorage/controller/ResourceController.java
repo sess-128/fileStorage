@@ -52,9 +52,11 @@ public class ResourceController {
     }
 
     @GetMapping("/move")
-    public void move(@RequestParam("source") String from,
-                     @RequestParam("target") String to,
+    public void move(@RequestParam("from") String from,
+                     @RequestParam("to") String to,
                      @AuthenticationPrincipal MyUserDetails myUserDetails) {
+        System.out.println("Received from: " + from);
+        System.out.println("Received to: " + to);
         minioMainService.renameOrMoveFile(from, to, myUserDetails);
     }
 
@@ -68,7 +70,7 @@ public class ResourceController {
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> upload(@RequestParam("path") String path,
-                                    @RequestParam("file") MultipartFile file,
+                                    @RequestParam("file") List<MultipartFile> file,
                                     @AuthenticationPrincipal MyUserDetails myUserDetails) {
         minioMainService.uploadFileOrFolder(file, path, myUserDetails);
         MinioResponse minioResponse = MinioResponse.builder()

@@ -48,7 +48,7 @@ public class DownloadService extends BaseService {
             Item item = file.get();
             if (!item.isDir()) {
                 String objectName = item.objectName();
-                String entryName = objectName.substring(zipName.length());
+                String entryName = objectName.substring(prefix.length());
 
                 ZipEntry zipEntry = new ZipEntry(entryName);
                 zipOutputStream.putNextEntry(zipEntry);

@@ -1,6 +1,5 @@
 package com.rrtyui.filestorage.minio.service;
 
-import com.rrtyui.filestorage.exception.UserAlreadyExistException;
 import com.rrtyui.filestorage.minio.repository.MinioRepository;
 import com.rrtyui.filestorage.minio.util.MinioUtils;
 import com.rrtyui.filestorage.security.MyUserDetails;
@@ -12,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -23,54 +23,37 @@ public class UploadService extends BaseService{
         super(minioUtils, minioRepository);
     }
 
-    public void uploadFileOrFolder(MultipartFile file, String targetPath, MyUserDetails userDetails) {
+    public void uploadFileOrFolder(List<MultipartFile> files, String targetPath, MyUserDetails userDetails) {
         String userPrefix = minioUtils.getCurrentUserPath(userDetails);
-        String fullPath = userPrefix + targetPath;
-        log.info("Checking path: {}", fullPath);
+        String fullBasePath = userPrefix + targetPath;
 
-//        if (minioRepository.isResourceExist(fullPath)) {
+//        if (minioRepository.isResourceExist(fullBasePath)) {
 //            throw new UserAlreadyExistException("Файл или папка уже существует");
 //        }
-        if (file.getOriginalFilename() != null && file.getOriginalFilename().endsWith(".zip")) {
-            uploadZipArchive(file, fullPath);
-        } else {
+//        if (file.getOriginalFilename() != null && file.getOriginalFilename().endsWith(".zip")) {
+//            uploadZipArchive(file, fullBasePath);
+//        } else {
+//            uploadSingleFile(file, fullBasePath);
+//        }
+
+        for (MultipartFile file : files) {
+            if (file.isEmpty()) {
+                continue;
+            }
+            String relativePath = file.getOriginalFilename();
+            String fullPath = fullBasePath + "/" + relativePath;
+
             uploadSingleFile(file, fullPath);
         }
     }
 
     @SneakyThrows
     private void uploadSingleFile(MultipartFile file, String targetPath) {
-        String objectName = targetPath + "/" + file.getOriginalFilename();
         String contentType = file.getContentType();
         long size = file.getSize();
 
         try (InputStream inputStream = file.getInputStream()) {
-            minioRepository.uploadFile(inputStream, objectName, contentType, size);
-        }
-    }
-
-    @SneakyThrows
-    private void uploadZipArchive(MultipartFile zipFile, String targetPath) {
-        try (ZipInputStream zipInputStream = new ZipInputStream(zipFile.getInputStream())) {
-            ZipEntry entry;
-            while ((entry = zipInputStream.getNextEntry()) != null) {
-                if (!entry.isDirectory()) {
-                    String objectName = targetPath + "/" + entry.getName();
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    byte[] buffer = new byte[1024];
-                    int len;
-                    while ((len = zipInputStream.read(buffer)) > 0) {
-                        baos.write(buffer, 0, len);
-                    }
-
-                    try (ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray())) {
-                        String contentType = minioUtils.getContentType(entry.getName());
-                        int size = baos.size();
-                        minioRepository.uploadZip(bais, size, objectName, contentType);
-                    }
-                }
-                zipInputStream.closeEntry();
-            }
+            minioRepository.uploadFile(inputStream, targetPath, contentType, size);
         }
     }
 }

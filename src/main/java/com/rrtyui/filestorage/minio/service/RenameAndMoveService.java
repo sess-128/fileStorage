@@ -74,7 +74,7 @@ public class RenameAndMoveService extends BaseService{
             String relativePath = name.substring(sourcePrefix.length());
             String newObjectName = targetPrefix + relativePath;
 
-            minioRepository.copyFile(newObjectName, name);
+            minioRepository.copyFile(name, newObjectName);
         }
 
        deleteService.deleteDirectory(from, myUserDetails);

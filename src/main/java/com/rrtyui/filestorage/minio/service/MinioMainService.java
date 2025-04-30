@@ -36,7 +36,11 @@ public class MinioMainService {
 
     public void deleteResource(String path, MyUserDetails userDetails) {
         minioUtils.validatePath(path);
-        deleteService.deleteResource(path, userDetails);
+        if (path.endsWith("/")) {
+            deleteService.deleteDirectory(path, userDetails); // ← удаление папки
+        } else {
+            deleteService.deleteResource(path, userDetails);  // ← удаление файла
+        }
     }
 
     @SneakyThrows
@@ -58,7 +62,6 @@ public class MinioMainService {
 
     @SneakyThrows
     public void renameOrMoveFile(String from, String to, MyUserDetails myUserDetails) {
-
         renameAndMoveService.renameOrMoveFile(from, to, myUserDetails);
     }
 
@@ -68,7 +71,7 @@ public class MinioMainService {
     }
 
     @SneakyThrows
-    public void uploadFileOrFolder(MultipartFile file, String targetPath, MyUserDetails userDetails) {
+    public void uploadFileOrFolder(List<MultipartFile> file, String targetPath, MyUserDetails userDetails) {
         minioUtils.validatePath(targetPath);
         uploadService.uploadFileOrFolder(file, targetPath, userDetails);
     }
