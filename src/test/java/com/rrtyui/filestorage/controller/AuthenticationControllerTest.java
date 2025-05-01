@@ -6,7 +6,7 @@ import com.rrtyui.filestorage.mapper.MyUserMapper;
 import com.rrtyui.filestorage.repository.UserRepository;
 import com.rrtyui.filestorage.service.RegisterService;
 import com.rrtyui.filestorage.util.Mapper;
-import com.rrtyui.filestorage.util.response.UserResponse;
+import com.rrtyui.filestorage.util.UserResponse;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;

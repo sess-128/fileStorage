@@ -107,7 +107,7 @@ public class MinioRepository {
     }
 
     @SneakyThrows
-    public void copyFile(String fromSource, String toSource) {
+    public void moveFile(String fromSource, String toSource) {
         minio.copyObject(
                 CopyObjectArgs.builder()
                         .bucket(ROOT_BUCKET)
@@ -118,17 +118,6 @@ public class MinioRepository {
                         .build());
     }
 
-    @SneakyThrows
-    public void uploadZip(InputStream bais, int size, String objectName, String contentType) {
-        minio.putObject(
-                PutObjectArgs.builder()
-                        .bucket(ROOT_BUCKET)
-                        .object(objectName)
-                        .stream(bais, size, -1)
-                        .contentType(contentType)
-                        .build()
-        );
-    }
 
     @SneakyThrows
     public void uploadFile(InputStream inputStream, String objectName, String contentType, long size) {

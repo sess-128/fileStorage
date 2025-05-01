@@ -1,10 +1,10 @@
 package com.rrtyui.filestorage.minio.service;
 
+import com.rrtyui.filestorage.mapper.ResponseMapper;
 import com.rrtyui.filestorage.minio.repository.MinioRepository;
-import com.rrtyui.filestorage.minio.util.MinioUtils;
-import com.rrtyui.filestorage.minio.util.ResourceType;
-import com.rrtyui.filestorage.security.MyUserDetails;
-import com.rrtyui.filestorage.util.response.MinioResponse;
+import com.rrtyui.filestorage.minio.service.impl.BaseService;
+import com.rrtyui.filestorage.minio.util.MinioUtil;
+import com.rrtyui.filestorage.util.MinioResponse;
 import io.minio.Result;
 import io.minio.messages.Item;
 import lombok.SneakyThrows;
@@ -14,16 +14,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class SearchService extends BaseService{
+public class SearchService extends BaseService {
 
-    public SearchService(MinioUtils minioUtils, MinioRepository minioRepository) {
-        super(minioUtils, minioRepository);
+    public SearchService(MinioUtil minioUtil, MinioRepository minioRepository) {
+        super(minioUtil, minioRepository);
     }
 
     @SneakyThrows
-    public List<MinioResponse> search(String query, MyUserDetails myUserDetails) {
+    public List<MinioResponse> search(String query) {
         List<MinioResponse> result = new ArrayList<>();
-        String userPrefix = minioUtils.getCurrentUserPath(myUserDetails);
+        String userPrefix = minioUtil.getCurrentUserPath();
 
         Iterable<Result<Item>> objects = minioRepository.getContentsDirectoryRecursively(userPrefix);
 
@@ -32,23 +32,8 @@ public class SearchService extends BaseService{
             String fullObjectName = item.objectName();
             String relativePath = fullObjectName.substring(userPrefix.length());
 
-            boolean isDirectory = minioUtils.isDirectoryPath(fullObjectName) || item.isDir();
-            String objectName = isDirectory
-                    ? minioUtils.getLastSegmentPrefix(relativePath)
-                    : minioUtils.createFileName(relativePath);
-
-            if (objectName.toLowerCase().contains(query.toLowerCase())) {
-                MinioResponse response = MinioResponse.builder()
-                        .path(minioUtils.getParentPrefix(relativePath))
-                        .name(objectName)
-                        .type(isDirectory ? ResourceType.DIRECTORY : ResourceType.FILE)
-                        .build();
-
-                if (!isDirectory) {
-                    response.setSize(item.size());
-                }
-                result.add(response);
-            }
+            MinioResponse minioResponse = ResponseMapper.toMinioResponse(item, relativePath, query, minioUtil);
+            result.add(minioResponse);
         }
 
         return result;

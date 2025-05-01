@@ -2,16 +2,15 @@ package com.rrtyui.filestorage.minio.util;
 
 import com.rrtyui.filestorage.exception.InvalidPathException;
 import com.rrtyui.filestorage.security.MyUserDetails;
+import io.minio.messages.Item;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Component
-public class MinioUtils {
+public class MinioUtil {
     private static final String REG_EXP = "(//|\\.\\.|--|-$|\\.$)";
 
     public String normalizePath(String path) {
@@ -61,31 +60,30 @@ public class MinioUtils {
         return createFileName(path) + ".zip";
     }
 
-    public String getCurrentUserPath(MyUserDetails userDetails) {
-        return "user-%s-files/".formatted(userDetails.getMyUser().getId());
+    public String getCurrentUserPath() {
+        MyUserDetails currentUser = getCurrentUser();
+        return "user-%s-files/".formatted(currentUser.getMyUser().getId());
     }
 
-    public boolean isRenameOperation(String from, String to) {
+    private MyUserDetails getCurrentUser() {
+        return (MyUserDetails) SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal();
+    }
+
+    private boolean isRenameOperation(String from, String to) {
         if (isDirectoryPath(from) != isDirectoryPath(to)) {
             return false;
         }
         return getParentPrefix(from).equals(getParentPrefix(to));
     }
 
-    public boolean isMoveOperation(String from, String to) {
+    private boolean isMoveOperation(String from, String to) {
         if (isDirectoryPath(from) != isDirectoryPath(to)) {
             return false;
         }
         return getLastSegmentPrefix(from).equals(getLastSegmentPrefix(to));
-    }
-
-    public String getContentType(String filename) {
-        try {
-            String type = Files.probeContentType(Path.of(filename));
-            return type != null ? type : "application/octet-stream";
-        } catch (IOException e) {
-            return "application/octet-stream";
-        }
     }
 
     public void validatePath(String path) {
@@ -94,5 +92,33 @@ public class MinioUtils {
         if (matcher.find()) {
             throw new InvalidPathException("Invalid path");
         }
+    }
+
+    public boolean shouldSkip(Item item, String relativePath, String requestedPath) {
+        boolean emptyDirectories = !item.isDir() && item.size() == 0 && relativePath.endsWith("/");
+        boolean currentDirectory = relativePath.isEmpty() || relativePath.equals(requestedPath);
+
+        return currentDirectory || emptyDirectories;
+    }
+
+    public void validateMove(String from, String to) {
+        if (from.equals(to)) {
+            throw new IllegalArgumentException("Source and destination paths are identical");
+        }
+
+        if (to.startsWith(from)) {
+            throw new IllegalArgumentException("You can't move a folder inside yourself");
+        }
+    }
+
+    public String defineOperation(String from, String to) {
+        if (isRenameOperation(from, to)) {
+            return to;
+        }
+        if (isMoveOperation(from, to)) {
+            String originalFileName = getLastSegmentPrefix(from);
+            return getParentPrefix(to) + originalFileName;
+        }
+        throw new UnsupportedOperationException("Combined rename+move operations are not supported");
     }
 }

@@ -25,6 +25,7 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
+@EnableRedisHttpSession
 public class SecurityConfig {
 
     @Bean

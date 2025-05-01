@@ -1,7 +1,7 @@
 package com.rrtyui.filestorage.exception;
 
 import com.rrtyui.filestorage.mapper.ResponseMapper;
-import com.rrtyui.filestorage.util.response.ErrorResponse;
+import com.rrtyui.filestorage.util.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;

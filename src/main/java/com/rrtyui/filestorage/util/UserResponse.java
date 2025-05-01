@@ -1,4 +1,4 @@
-package com.rrtyui.filestorage.util.response;
+package com.rrtyui.filestorage.util;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

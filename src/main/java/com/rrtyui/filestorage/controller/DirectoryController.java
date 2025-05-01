@@ -1,12 +1,10 @@
 package com.rrtyui.filestorage.controller;
 
-import com.rrtyui.filestorage.minio.service.MinioMainService;
-import com.rrtyui.filestorage.security.MyUserDetails;
-import com.rrtyui.filestorage.util.response.MinioResponse;
+import com.rrtyui.filestorage.minio.service.impl.MinioFileStorageService;
+import com.rrtyui.filestorage.util.MinioResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,21 +14,18 @@ import java.util.List;
 @RequestMapping("/api/directory")
 public class DirectoryController {
 
-    private final MinioMainService minioMainService;
+    private final MinioFileStorageService minioFileStorageService;
 
     @PostMapping
-    public ResponseEntity<?> createEmptyFolder(@RequestParam("path") String path,
-                                               @AuthenticationPrincipal MyUserDetails myUserDetails) {
-        MinioResponse minioResponse = minioMainService.createEmptyFolder(path, myUserDetails);
+    public ResponseEntity<?> createEmptyFolder(@RequestParam("path") String path) {
+        MinioResponse minioResponse = minioFileStorageService.createEmptyFolder(path);
 
         return new ResponseEntity<>(minioResponse, HttpStatus.CREATED);
     }
 
     @GetMapping
-    public ResponseEntity<?> getDirectoryInfo(@RequestParam("path") String path,
-                                               @AuthenticationPrincipal MyUserDetails myUserDetails) {
-        List<MinioResponse> minioResponses = minioMainService.directoryInfo(path, myUserDetails);
-
-        return new ResponseEntity<>(minioResponses, HttpStatus.OK);
+    public ResponseEntity<?> getDirectoryInfo(@RequestParam("path") String path) {
+        List<MinioResponse> minioResponses = minioFileStorageService.getInfo(path);
+        return ResponseEntity.ok(minioResponses);
     }
 }

@@ -3,10 +3,9 @@ package com.rrtyui.filestorage.minio.service;
 import com.rrtyui.filestorage.exception.InvalidPathException;
 import com.rrtyui.filestorage.mapper.ResponseMapper;
 import com.rrtyui.filestorage.minio.repository.MinioRepository;
-import com.rrtyui.filestorage.minio.util.MinioUtils;
-import com.rrtyui.filestorage.minio.util.ResourceType;
-import com.rrtyui.filestorage.security.MyUserDetails;
-import com.rrtyui.filestorage.util.response.MinioResponse;
+import com.rrtyui.filestorage.minio.service.impl.BaseService;
+import com.rrtyui.filestorage.minio.util.MinioUtil;
+import com.rrtyui.filestorage.util.MinioResponse;
 import io.minio.Result;
 import io.minio.StatObjectResponse;
 import io.minio.messages.Item;
@@ -17,23 +16,32 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class InfoService extends BaseService{
+public class InfoService extends BaseService {
 
-    public InfoService(MinioUtils minioUtils, MinioRepository minioRepository) {
-        super(minioUtils, minioRepository);
+
+    public InfoService(MinioUtil minioUtil, MinioRepository minioRepository) {
+        super(minioUtil, minioRepository);
     }
 
-    public MinioResponse getResourceInfo(String path, MyUserDetails userDetails) {
-        String name = minioUtils.getCurrentUserPath(userDetails) + path;
-        StatObjectResponse resourceInfo = minioRepository.getResourceInfo(name);
+    public List<MinioResponse> getInfo(String path) {
+        if (minioUtil.isDirectoryPath(path)) {
+            return directoryInfo(path);
+        } else {
+            return List.of(resourceInfo(path));
+        }
+    }
+
+    private MinioResponse resourceInfo(String path) {
+        String fullPath = minioUtil.getCurrentUserPath() + path;
+        StatObjectResponse resourceInfo = minioRepository.getResourceInfo(fullPath);
         return ResponseMapper.toMinioResponse(resourceInfo, path);
     }
 
     @SneakyThrows
-    public List<MinioResponse> directoryInfo(String path, MyUserDetails myUserDetails) {
+    private List<MinioResponse> directoryInfo(String path) {
         List<MinioResponse> directoryContent = new ArrayList<>();
-        String normalizedPath = minioUtils.normalizePath(path);
-        String sourcePrefix = minioUtils.getCurrentUserPath(myUserDetails) + normalizedPath;
+        String normalizedPath = minioUtil.normalizePath(path);
+        String sourcePrefix = minioUtil.getCurrentUserPath() + normalizedPath;
 
         Iterable<Result<Item>> items = minioRepository.getContentsDirectory(sourcePrefix);
 
@@ -44,32 +52,14 @@ public class InfoService extends BaseService{
         for (Result<Item> itemResult : items) {
             Item item = itemResult.get();
             String objectName = item.objectName();
-            String relativePath = objectName.substring(minioUtils.getCurrentUserPath(myUserDetails).length());
+            String relativePath = objectName.substring(minioUtil.getCurrentUserPath().length());
 
-            if (relativePath.isEmpty() || relativePath.equals(path)) {
+            if (minioUtil.shouldSkip(item, relativePath, path)) {
                 continue;
             }
 
-            if (!item.isDir() && item.size() == 0 && relativePath.endsWith("/")) {
-                continue;
-            }
-
-            if (item.isDir()) {
-                MinioResponse minioResponse = MinioResponse.builder()
-                        .path(path)
-                        .name(minioUtils.getLastSegmentPrefix(relativePath))
-                        .type(ResourceType.DIRECTORY)
-                        .build();
-                directoryContent.add(minioResponse);
-            } else {
-                MinioResponse minioResponse = MinioResponse.builder()
-                        .path(path)
-                        .name(minioUtils.createFileName(relativePath))
-                        .size(item.size())
-                        .type(ResourceType.FILE)
-                        .build();
-                directoryContent.add(minioResponse);
-            }
+            MinioResponse minioResponse = ResponseMapper.toMinioResponse(item, relativePath, path, minioUtil);
+            directoryContent.add(minioResponse);
         }
 
         return directoryContent;

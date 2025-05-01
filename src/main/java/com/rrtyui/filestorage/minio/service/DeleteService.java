@@ -1,33 +1,38 @@
 package com.rrtyui.filestorage.minio.service;
 
 import com.rrtyui.filestorage.minio.repository.MinioRepository;
-import com.rrtyui.filestorage.minio.util.MinioUtils;
-import com.rrtyui.filestorage.security.MyUserDetails;
+import com.rrtyui.filestorage.minio.service.impl.BaseService;
+import com.rrtyui.filestorage.minio.util.MinioUtil;
 import io.minio.Result;
 import io.minio.messages.Item;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 
 @Service
+public class DeleteService extends BaseService {
 
-public class DeleteService extends BaseService{
+    public DeleteService(MinioUtil minioUtil, MinioRepository minioRepository) {
+        super(minioUtil, minioRepository);
+    }
 
-    public DeleteService(MinioUtils minioUtils, MinioRepository minioRepository) {
-        super(minioUtils, minioRepository);
+    public void delete(String path) {
+        if (minioUtil.isDirectoryPath(path)) {
+            deleteDirectory(path);
+        } else {
+            deleteFile(path);
+        }
     }
 
     @SneakyThrows
-    public void deleteDirectory(String path, MyUserDetails myUserDetails) {
-        String prefix = minioUtils.getCurrentUserPath(myUserDetails) + path;
+    private void deleteDirectory(String path) {
+        String prefix = minioUtil.getCurrentUserPath() + path;
         Iterable<Result<Item>> objects = minioRepository.getContentsDirectoryRecursively(prefix);
 
         for (Result<Item> result : objects) {
             String toRemove = result.get().objectName();
-            System.out.println("Удаляю объект: " + toRemove);
             minioRepository.deleteFile(toRemove);
         }
 
-        System.out.println("Удаляю папку-объект: " + prefix);
         try {
             minioRepository.deleteFile(prefix);
         } catch (Exception e) {
@@ -35,8 +40,8 @@ public class DeleteService extends BaseService{
         }
     }
 
-    public void deleteResource(String path, MyUserDetails userDetails) {
-        String name = minioUtils.getCurrentUserPath(userDetails) + path;
+    private void deleteFile(String path) {
+        String name = minioUtil.getCurrentUserPath() + path;
         minioRepository.deleteResource(name);
     }
 }

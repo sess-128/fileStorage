@@ -1,4 +1,4 @@
-package com.rrtyui.filestorage.util.response;
+package com.rrtyui.filestorage.util;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.rrtyui.filestorage.minio.util.ResourceType;
