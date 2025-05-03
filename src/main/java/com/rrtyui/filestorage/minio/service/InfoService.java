@@ -10,11 +10,13 @@ import io.minio.Result;
 import io.minio.StatObjectResponse;
 import io.minio.messages.Item;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Service
 public class InfoService extends BaseService {
 
@@ -51,8 +53,7 @@ public class InfoService extends BaseService {
 
         for (Result<Item> itemResult : items) {
             Item item = itemResult.get();
-            String objectName = item.objectName();
-            String relativePath = objectName.substring(minioUtil.getCurrentUserPath().length());
+            String relativePath = minioUtil.getRelativePathByItem(item);
 
             if (minioUtil.shouldSkip(item, relativePath, path)) {
                 continue;

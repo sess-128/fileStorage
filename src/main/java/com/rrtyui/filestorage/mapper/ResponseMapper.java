@@ -48,18 +48,16 @@ public class ResponseMapper {
         } else {
             builder.name(minioUtil.createFileName(path));
             builder.type(ResourceType.FILE);
-            // builder.size(...) — если размер известен, можно передать отдельно
         }
 
         return builder.build();
     }
 
-    public static MinioResponse toMinioResponse(Item item, String relativePath, String basePath, MinioUtil minioUtil) {
+    public static MinioResponse toMinioResponse(Item item, String relativePath, String parentPath, MinioUtil minioUtil) {
         boolean isDirectory = item.isDir() || minioUtil.isDirectoryPath(item.objectName());
 
-        MinioResponse.MinioResponseBuilder builder = MinioResponse.builder();
-
-        builder.path(basePath);
+        MinioResponse.MinioResponseBuilder builder = MinioResponse.builder()
+                .path(parentPath);
 
         if (isDirectory) {
             builder.name(minioUtil.getLastSegmentPrefix(relativePath));

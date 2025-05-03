@@ -29,11 +29,16 @@ public class SearchService extends BaseService {
 
         for (Result<Item> itemResult : objects) {
             Item item = itemResult.get();
-            String fullObjectName = item.objectName();
-            String relativePath = fullObjectName.substring(userPrefix.length());
+            String relativePath = minioUtil.getRelativePathByItem(item);
+            String parentPath = minioUtil.getParentPrefix(relativePath);
+            String objectName = minioUtil.getResourceNameByItemType(item);
 
-            MinioResponse minioResponse = ResponseMapper.toMinioResponse(item, relativePath, query, minioUtil);
-            result.add(minioResponse);
+            if (!minioUtil.isMatchQuery(objectName, query)) {
+                continue;
+            }
+
+            MinioResponse response = ResponseMapper.toMinioResponse(item, relativePath, parentPath, minioUtil);
+            result.add(response);
         }
 
         return result;

@@ -16,7 +16,6 @@ public class MinioOperationHandler implements StorageOperationHandler<MinioRespo
     private final DownloadService downloadService;
     private final MoveService moveService;
     private final DeleteService deleteService;
-
     private final UploadService uploadService;
     private final SearchService searchService;
     private final CreateService createService;

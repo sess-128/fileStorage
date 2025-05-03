@@ -1,5 +1,6 @@
 package com.rrtyui.filestorage.minio.config;
 
+import com.rrtyui.filestorage.minio.util.MinioUtil;
 import io.minio.MinioClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,7 +17,7 @@ public class MinioConfig {
     }
 
     @Bean
-    public MinioUtils minioUtils() {
-        return new MinioUtils();
+    public MinioUtil minioUtil() {
+        return new MinioUtil();
     }
 }

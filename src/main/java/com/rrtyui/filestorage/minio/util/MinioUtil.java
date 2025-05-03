@@ -3,12 +3,15 @@ package com.rrtyui.filestorage.minio.util;
 import com.rrtyui.filestorage.exception.InvalidPathException;
 import com.rrtyui.filestorage.security.MyUserDetails;
 import io.minio.messages.Item;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Slf4j
 @Component
 public class MinioUtil {
     private static final String REG_EXP = "(//|\\.\\.|--|-$|\\.$)";
@@ -48,7 +51,7 @@ public class MinioUtil {
     }
 
     public boolean isDirectoryPath(String path) {
-        return path.endsWith("/");
+        return path.isEmpty() || path.endsWith("/");
     }
 
     public String createFileName(String path) {
@@ -66,10 +69,10 @@ public class MinioUtil {
     }
 
     private MyUserDetails getCurrentUser() {
-        return (MyUserDetails) SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getPrincipal();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Object principal = authentication.getPrincipal();
+
+        return (MyUserDetails) principal;
     }
 
     private boolean isRenameOperation(String from, String to) {
@@ -120,5 +123,28 @@ public class MinioUtil {
             return getParentPrefix(to) + originalFileName;
         }
         throw new UnsupportedOperationException("Combined rename+move operations are not supported");
+    }
+
+    public String getResourceNameByItemType(Item item) {
+        String fullObjectName = item.objectName();
+        int userPathLength = getCurrentUserPath().length();
+        String relativePath = fullObjectName.substring(userPathLength);
+
+        boolean isDirectory = item.isDir() || isDirectoryPath(fullObjectName);
+
+        return isDirectory
+                ? getLastSegmentPrefix(relativePath)
+                : createFileName(relativePath);
+    }
+
+    public String getRelativePathByItem(Item item) {
+        String fullObjectName = item.objectName();
+        int userPathLength = getCurrentUserPath().length();
+
+        return fullObjectName.substring(userPathLength);
+    }
+
+    public boolean isMatchQuery(String name, String query) {
+        return name.toLowerCase().contains(query.toLowerCase());
     }
 }

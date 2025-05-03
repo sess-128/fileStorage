@@ -31,14 +31,15 @@ public class DownloadService extends BaseService {
     public void download(String path) {
         boolean isDirectory = minioUtil.isDirectoryPath(path);
 
-
         if (isDirectory) {
             String zipName = minioUtil.createZipName(path);
             HttpServletResponse response = webUtil.getPreparedResponse(true, zipName);
+
             downloadDirectory(path, response);
         } else {
             String fileName = minioUtil.createFileName(path);
             HttpServletResponse response = webUtil.getPreparedResponse(false, fileName);
+
             downloadFile(path, response);
         }
     }
