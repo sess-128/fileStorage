@@ -1,0 +1,25 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-user
+      author: Andrew
+      changes:
+        - createTable:
+            tableName: users
+            columns:
+              - column:
+                  name: id
+                  type: bigserial
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: username
+                  type: varchar(100)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: password
+                  type: varchar(100)
+                  constraints:
+                    nullable: false

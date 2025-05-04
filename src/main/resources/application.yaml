@@ -1,21 +1,34 @@
+minio:
+  endpoint: http://minioS3:9000
+  access-key: ${MINIO_APP_USER}
+  secret-key: ${MINIO_APP_PASSWORD}
+
 spring:
+
+  liquibase:
+    enabled: true
+
   session:
     redis:
       namespace: spring:session
-    timeout: 30m
+    timeout: 60m
+
   data:
     redis:
       host: redis
-      port: 6379
+      port: ${PORT_REDIS}
+
   datasource:
-      url: jdbc:postgresql://db:5432/file_storage
-      username: hesaro_kan
-      password: y768ayxxx
+      url: ${DB_URL}
+      username: ${DB_USER}
+      password: ${DB_PASSWORD}
       driver-class-name: org.postgresql.Driver
+
   jpa:
     properties.hibernate:
       show_sql: true
       format_sql: true
+
   servlet:
     multipart:
       max-file-size: 100MB

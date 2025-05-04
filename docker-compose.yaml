@@ -1,16 +1,19 @@
 services:
+
   backend:
     build:
       context: .
     ports:
-      - "8080:8080"
+      - "${PORT_BACKEND}:8080"
     environment:
       SPRING_DATASOURCE_URL: ${DB_URL}
       SPRING_DATASOURCE_USERNAME: ${DB_USER}
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
-#      MINIO_ENDPOINT: http://minioS3:9000
-#      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER}
-#      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD}
+
+      MINIO_APP_USER: ${MINIO_APP_USER}
+      MINIO_APP_PASSWORD: ${MINIO_APP_PASSWORD}
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
     depends_on:
       redis:
         condition: service_healthy
@@ -24,40 +27,65 @@ services:
     container_name: redis
     hostname: redis
     ports:
-      - "6379:6379"
+      - "${PORT_REDIS}:6379"
     healthcheck:
       test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
       interval: 5s
       timeout: 5s
       retries: 10
+
   frontend:
     build:
       context: ./cloud-storage-frontend
     ports:
-      - "80:80"
+      - "${PORT_FRONTEND}:80"
     depends_on:
       - backend
+
   minioS3:
     image: quay.io/minio/minio:RELEASE.2025-04-08T15-41-24Z
     ports:
-      - "9000:9000"
-      - "9001:9001"
+      - "${PORT_MINIO}:9000"
+      - "${PORT_MINIO_CONSOLE}:9001"
     volumes:
       - minio_data:/data
     command: server --console-address ":9001" /data
-#    environment:
-#      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
-#      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:9000/minio/health/live" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  init-minio:
+    image: minio/mc
+    depends_on:
+      minioS3:
+        condition: service_healthy
+    entrypoint: [ "/bin/sh", "-c", "/init.sh" ]
+    volumes:
+      - ./init.sh:/init.sh
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      MINIO_APP_USER: ${MINIO_APP_USER}
+      MINIO_APP_PASSWORD: ${MINIO_APP_PASSWORD}
 
   db:
     image: postgres
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U $DB_USER -d $DB_NAME" ]
       interval: 10s
       timeout: 5s
       retries: 5
     ports:
-      - "5430:5432"
+      - "${PORT_DB}:5432"
     volumes:
       - db-data:/var/lib/postgresql/data
 

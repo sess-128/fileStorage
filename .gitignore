@@ -18,7 +18,9 @@ mvnw.cmd
 .sts4-cache
 
 .env
-
+cloud-storage-frontend/
+minio_storage/
+.gitattributes
 
 .idea
 *.iws

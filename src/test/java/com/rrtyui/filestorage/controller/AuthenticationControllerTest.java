@@ -13,7 +13,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -70,13 +69,12 @@ class AuthenticationControllerTest {
         dynamicPropertyRegistry.add("spring.datasource.username", postgres::getUsername);
         dynamicPropertyRegistry.add("spring.datasource.password", postgres::getPassword);
         dynamicPropertyRegistry.add("spring.jpa.generate-ddl", () -> true);
-        dynamicPropertyRegistry.add("spring.redis.host", redis::getHost);
-        dynamicPropertyRegistry.add("spring.redis.port", redis::getFirstMappedPort);
+        dynamicPropertyRegistry.add("spring.data.redis.host", redis::getHost);
+        dynamicPropertyRegistry.add("spring.data.redis.port", redis::getFirstMappedPort);
     }
 
     @BeforeEach
     void setUp() {
-        // 👇 Настраиваем мок, чтобы метод ничего не делал и не падал
         doNothing().when(minioFileStorageService).createRootFolderByUserId(anyLong());
     }
 
