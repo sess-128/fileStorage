@@ -54,13 +54,8 @@ public class GlobalAdvice {
         return new ResponseEntity<>(response, HttpStatus.CONFLICT); // 409
     }
 
-
-
-
-
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleAll(Exception ex) {
-        ex.printStackTrace(); // чтобы точно увидеть в консоли
         return ResponseEntity.badRequest().body("Error: " + ex.getMessage());
     }
 }

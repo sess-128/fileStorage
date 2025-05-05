@@ -7,7 +7,6 @@ import com.rrtyui.filestorage.minio.repository.MinioRepository;
 import com.rrtyui.filestorage.minio.service.impl.BaseService;
 import com.rrtyui.filestorage.minio.util.MinioUtil;
 import com.rrtyui.filestorage.util.MinioResponse;
-import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -17,13 +16,11 @@ public class CreateService extends BaseService {
         super(minioUtil, minioRepository);
     }
 
-    @SneakyThrows
     public void createRootFolderForUser(Long id) {
         String userRootDirectory = "user-" + id + "-files/";
         minioRepository.createRootFolderForUser(userRootDirectory);
     }
 
-    @SneakyThrows
     public MinioResponse createEmptyFolder(String path) {
         minioUtil.validatePath(path);
         String finalFolderPath = minioUtil.getCurrentUserPath() + path;

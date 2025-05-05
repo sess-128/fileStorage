@@ -6,19 +6,19 @@ import com.rrtyui.filestorage.minio.util.MinioUtil;
 import com.rrtyui.filestorage.minio.util.ResourceType;
 import com.rrtyui.filestorage.util.ErrorResponse;
 import com.rrtyui.filestorage.util.MinioResponse;
-import com.rrtyui.filestorage.util.UserResponse;
+import com.rrtyui.filestorage.dto.MyUserResponseDto;
 import io.minio.StatObjectResponse;
 import io.minio.messages.Item;
 import org.springframework.web.multipart.MultipartFile;
 
 public class ResponseMapper {
 
-    public static UserResponse toUserResponse(MyUserRequestDto dto) {
-        return new UserResponse(dto.getUsername());
+    public static MyUserResponseDto toUserResponse(MyUserRequestDto dto) {
+        return new MyUserResponseDto(dto.getUsername());
     }
 
-    public static UserResponse toUserResponse(MyUser user) {
-        return new UserResponse(user.getUsername());
+    public static MyUserResponseDto toUserResponse(MyUser user) {
+        return new MyUserResponseDto(user.getUsername());
     }
 
     public static ErrorResponse toErrorResponse(Exception e){

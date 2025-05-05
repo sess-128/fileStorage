@@ -5,7 +5,7 @@ import com.rrtyui.filestorage.exception.UserNotFoundException;
 import com.rrtyui.filestorage.mapper.ResponseMapper;
 import com.rrtyui.filestorage.repository.UserRepository;
 import com.rrtyui.filestorage.security.MyUserDetails;
-import com.rrtyui.filestorage.util.UserResponse;
+import com.rrtyui.filestorage.dto.MyUserResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +15,7 @@ public class MyUserService {
 
     private final UserRepository userRepository;
 
-    public UserResponse getUserById(MyUserDetails myUserDetails) {
+    public MyUserResponseDto getUserById(MyUserDetails myUserDetails) {
         Long id = myUserDetails.getMyUser().getId();
         MyUser myUser = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User with id: '" + id + "' doesn't exist"));

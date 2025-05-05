@@ -7,7 +7,7 @@ import com.rrtyui.filestorage.minio.service.impl.MinioFileStorageService;
 import com.rrtyui.filestorage.repository.UserRepository;
 import com.rrtyui.filestorage.service.RegisterService;
 import com.rrtyui.filestorage.util.Mapper;
-import com.rrtyui.filestorage.util.UserResponse;
+import com.rrtyui.filestorage.dto.MyUserResponseDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -81,10 +81,10 @@ class AuthenticationControllerTest {
     @Test
     @Transactional
     void registration_ShouldReturnIs2xxCreated_WhenCredentialsGood() throws Exception {
-        UserResponse userResponse = new UserResponse("test");
+        MyUserResponseDto myUserResponseDto = new MyUserResponseDto("test");
         MyUserRequestDto user = new MyUserRequestDto("test", "test");
         String userJson = Mapper.toJson(user);
-        String expected = Mapper.toJson(userResponse);
+        String expected = Mapper.toJson(myUserResponseDto);
 
         MvcResult actual = mvc.perform(post("/api/auth/sign-up")
                         .contentType(MediaType.APPLICATION_JSON)

@@ -4,7 +4,7 @@ services:
     build:
       context: .
     ports:
-      - "${PORT_BACKEND}:8080"
+      - "8080:8080"
     environment:
       SPRING_DATASOURCE_URL: ${DB_URL}
       SPRING_DATASOURCE_USERNAME: ${DB_USER}
@@ -27,7 +27,7 @@ services:
     container_name: redis
     hostname: redis
     ports:
-      - "${PORT_REDIS}:6379"
+      - "6379:6379"
     healthcheck:
       test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
       interval: 5s
@@ -38,15 +38,15 @@ services:
     build:
       context: ./cloud-storage-frontend
     ports:
-      - "${PORT_FRONTEND}:80"
+      - "80:80"
     depends_on:
       - backend
 
   minioS3:
     image: quay.io/minio/minio:RELEASE.2025-04-08T15-41-24Z
     ports:
-      - "${PORT_MINIO}:9000"
-      - "${PORT_MINIO_CONSOLE}:9001"
+      - "9000:9000"
+      - "9001:9001"
     volumes:
       - minio_data:/data
     command: server --console-address ":9001" /data
@@ -85,7 +85,7 @@ services:
       timeout: 5s
       retries: 5
     ports:
-      - "${PORT_DB}:5432"
+      - "5432:5432"
     volumes:
       - db-data:/var/lib/postgresql/data
 
